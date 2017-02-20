@@ -1,0 +1,5 @@
+dark blue - #0063B1
+light blue - #0078D7
+
+dark gray - #4C4A48
+light gray - #767676
