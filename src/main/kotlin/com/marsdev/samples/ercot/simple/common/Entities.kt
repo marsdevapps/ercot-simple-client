@@ -3,7 +3,7 @@ package com.marsdev.samples.ercot.simple.common
 import java.time.LocalDateTime
 
 data class ERCOTNode(val name: String, val lat: Double, val lon: Double) {
-    lateinit var prices: Map<LocalDateTime, SPPValue>
+    lateinit var prices: Map<LocalDateTime, Map<Int, SPPValue>>
 }
 
 

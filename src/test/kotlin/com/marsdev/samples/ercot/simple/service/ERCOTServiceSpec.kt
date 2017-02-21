@@ -24,7 +24,7 @@ class ERCOTServiceSpec : Spek({
             val spp = ercotService.getSettlementPointPrices(LocalDate.of(2017, 2, 13), node)
 
             it("should return a set of nodes with the SPP set.") {
-                assert(spp.size > 100)
+                assert(spp.size == 24)
             }
         }
     }
