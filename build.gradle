@@ -37,7 +37,7 @@ junitPlatform {
 dependencies {
     compile 'org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version'
 
-    compile 'no.tornado:tornadofx:1.6.2'
+    compile 'no.tornado:tornadofx:1.6.3-SNAPSHOT'
     compile 'org.ostermiller:utils:1.07.00'
     compile 'org.slf4j:slf4j-api:1.7.21'
     testCompile 'org.jetbrains.spek:spek-api:1.1.0-beta3'

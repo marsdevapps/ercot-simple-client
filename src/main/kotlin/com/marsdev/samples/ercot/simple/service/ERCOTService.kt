@@ -17,8 +17,7 @@ interface ERCOTService {
     /**
      * Get the SPP value for the given node in the system for the requested date.
      */
-    //    fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDateTime, Map<Int, SPPValue>>
-    fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<Int, SPPValue>
+    fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>>
 
     fun getERCOTNodes(): Set<ERCOTNode>
 }
@@ -28,10 +27,10 @@ class ERCOTServiceImpl : ERCOTService {
         // simple service... read from a csv file.  A real world application would read from a
         // database or web service
         val values = ExcelCSVParser.parse(FileReader("/temp/points.csv"))
-        return values.asSequence().map { it -> ERCOTNode(it[0], it[1].toDouble(), it[2].toDouble()) }.toSet()
+        return values.asSequence().map { it -> ERCOTNode(it[0], it[1].toDouble(), it[2].toDouble()) }.toSortedSet()
     }
 
-    override fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<Int, SPPValue> {
+    override fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>> {
         val values = ExcelCSVParser.parse(FileReader("/temp/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
         val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
         val hourlyPrices = values.asSequence()
@@ -44,8 +43,9 @@ class ERCOTServiceImpl : ERCOTService {
         hourlyPrices.forEach {
             returnMap.put(it.hourEnding + 1, it)
         }
-        return returnMap
 
-
+        val finalMap = HashMap<LocalDate, Map<Int, SPPValue>>()
+        finalMap.put(date, returnMap)
+        return finalMap
     }
 }
