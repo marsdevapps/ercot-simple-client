@@ -9,18 +9,35 @@ class ERCOTApp : App(ERCOTNodeList::class)
 
 
 class ERCOTNodeList : View("ERCOT Nodes") {
-    val ercotController: ERCOTController by inject()
+    val controller: ERCOTController by inject()
+    override val scope = super.scope as ERCOTScope
+
 
     override val root = borderpane {
         prefWidth = 400.0
         prefHeight = 200.0
 
-        center {
+        left {
             listview<ERCOTNode> {
-                items = FXCollections.observableArrayList(ercotController.getERCOTNodes())
+                items = FXCollections.observableArrayList(controller.getERCOTNodes())
 
                 cellCache {
                     label(it.name)
+                }
+
+                selectionModel.selectedItemProperty().onChange {
+                    scope.ercotModel.ercotNode.set(it)
+                }
+            }
+        }
+
+        bottom {
+            hbox {
+                datepicker(scope.ercotModel.dateProperty())
+                button("Load Prices") {
+                    setOnAction {
+                        controller.setSettlementPointPricesForSelection()
+                    }
                 }
             }
         }
