@@ -10,7 +10,7 @@ class ERCOTApp : App(ERCOTNodeList::class)
 
 class ERCOTNodeList : View("ERCOT Nodes") {
     val controller: ERCOTController by inject()
-    override val scope = super.scope as ERCOTScope
+    val model: ERCOTSelectionModel by inject()
 
 
     override val root = borderpane {
@@ -26,17 +26,17 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                 }
 
                 selectionModel.selectedItemProperty().onChange {
-                    scope.ercotModel.ercotNode.set(it)
+                    model.ercotNode.value = it
                 }
             }
         }
 
         bottom {
             hbox {
-                datepicker(scope.ercotModel.dateProperty())
+                datepicker(model.date)
                 button("Load Prices") {
                     setOnAction {
-                        controller.setSettlementPointPricesForSelection()
+                        controller.setSettlementPointPricesForSelection(model.date.value, model.ercotNode.value)
                     }
                 }
             }

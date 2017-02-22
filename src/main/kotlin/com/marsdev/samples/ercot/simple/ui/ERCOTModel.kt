@@ -6,15 +6,22 @@ import javafx.beans.property.SimpleObjectProperty
 import tornadofx.*
 import java.time.LocalDate
 
-class ERCOTSelectionModel(var date: LocalDate, var ercotNode: ERCOTNode, var selectedSPP: Set<SPPValue>) : ViewModel()
+class ERCOTSelection {
+    val selectedSPPProperty = SimpleObjectProperty<Set<SPPValue>>()
+    var selectedSPP by selectedSPPProperty
 
-class ERCOTModel : ItemViewModel<ERCOTModel>() {
-    var date by property<SimpleObjectProperty<LocalDate?>>()
-    fun dateProperty() = getProperty(ERCOTSelectionModel::date)
+    val dateProperty = SimpleObjectProperty<LocalDate>()
+    var date by dateProperty
 
-    var ercotNode by property<SimpleObjectProperty<ERCOTNode?>>()
-    fun ercotNodeProperty() = getProperty(ERCOTSelectionModel::ercotNode)
-
-
+    val ercotNodeProperty = SimpleObjectProperty<ERCOTNode>()
+    var ercotNode by ercotNodeProperty
 }
+
+class ERCOTSelectionModel : ItemViewModel<ERCOTSelection>() {
+    val selectedSPP = bind { item?.selectedSPPProperty }
+    val date = bind { item?.dateProperty }
+    val ercotNode = bind { item?.ercotNodeProperty }
+}
+
+
 

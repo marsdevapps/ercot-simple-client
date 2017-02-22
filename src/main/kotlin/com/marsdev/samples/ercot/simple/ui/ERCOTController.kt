@@ -8,7 +8,6 @@ import java.time.LocalDate
 import java.util.*
 
 class ERCOTController : Controller() {
-    override val scope = super.scope as ERCOTScope
     val selectedSPP = HashMap<LocalDate, Map<Int, SPPValue>>()
     val ercotService = ERCOTServiceImpl()
 
@@ -16,11 +15,11 @@ class ERCOTController : Controller() {
         return ercotService.getERCOTNodes()
     }
 
-    fun setSettlementPointPricesForSelection() {
+    fun setSettlementPointPricesForSelection(date: LocalDate, ercotNode: ERCOTNode) {
         // date: LocalDate, node: ERCOTNode
         // looks dirty.. fix/figure out why...
         selectedSPP.clear()
-        selectedSPP.putAll(ercotService.getSettlementPointPrices(scope.ercotModel.date.get()!!, scope.ercotModel.ercotNode.get()!!))
-        println(selectedSPP.values.size)
+        selectedSPP.putAll(ercotService.getSettlementPointPrices(date, ercotNode))
+        ercotNode.prices.put(date.atStartOfDay(), selectedSPP[date] as MutableMap<Int, SPPValue>)
     }
 }
