@@ -1,7 +1,10 @@
 package com.marsdev.samples.ercot.simple.ui
 
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
+import com.marsdev.samples.ercot.simple.common.SPPValue
 import javafx.collections.FXCollections
+import javafx.scene.chart.CategoryAxis
+import javafx.scene.chart.NumberAxis
 import tornadofx.*
 
 class ERCOTApp : App(ERCOTNodeList::class)
@@ -23,9 +26,30 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                     label(it.name)
                 }
 
+                bindSelected(model.ercotNode)
                 selectionModel.selectedItemProperty().onChange {
-                    model.ercotNode.value = it
+                    controller.setSettlementPointPricesForSelection()
                 }
+            }
+        }
+
+        center {
+            linechart("Hourly Prices", CategoryAxis(), NumberAxis(-50.0, 100.0, 10.0)) {
+                series("SPP") {
+                    data = controller.chartSeries
+                }
+                animated = false
+            }
+        }
+        right {
+            listview<SPPValue> {
+                items = controller.settlementPointPrices
+
+                cellCache {
+                    label(it.hourEnding.toString() + ":  " + it.settlementPointPrice.toString())
+                }
+
+
             }
         }
 
@@ -36,7 +60,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                     // fix so it is only enabled when both the date has been set and a node is selected
                     enableWhen { model.dirty }
                     setOnAction {
-                        controller.setSettlementPointPricesForSelection(model.date.value, model.ercotNode.value)
+                        controller.setSettlementPointPricesForSelection()
                     }
                 }
             }
