@@ -6,6 +6,7 @@ import javafx.collections.FXCollections
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
 import tornadofx.*
+import java.time.LocalDate
 
 class ERCOTApp : App(ERCOTNodeList::class)
 
@@ -15,17 +16,15 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     val model: ERCOTSelectionModel by inject()
 
     override val root = borderpane {
-        prefWidth = 400.0
-        prefHeight = 200.0
+        prefWidth = 1200.0
+        prefHeight = 800.0
 
         left {
             listview<ERCOTNode> {
                 items = FXCollections.observableArrayList(controller.getERCOTNodes())
-
                 cellCache {
                     label(it.name)
                 }
-
                 bindSelected(model.ercotNode)
                 selectionModel.selectedItemProperty().onChange {
                     controller.setSettlementPointPricesForSelection()
@@ -34,34 +33,37 @@ class ERCOTNodeList : View("ERCOT Nodes") {
         }
 
         center {
-            linechart("Hourly Prices", CategoryAxis(), NumberAxis(-50.0, 100.0, 10.0)) {
-                series("SPP") {
+            // todo need to bind number axis to upper/lower value in data and the chart title to the selected date
+            linechart("ERCOT DA Hourly Prices", CategoryAxis(), NumberAxis(-50.0, 100.0, 10.0)) {
+                // todo need to bind the selected node to the series title
+                series("Settlement Point Prices") {
                     data = controller.chartSeries
                 }
                 animated = false
             }
+
+            // todo add the map component
         }
         right {
+            // todo come up with a better way to display the hours
             listview<SPPValue> {
                 items = controller.settlementPointPrices
-
                 cellCache {
                     label(it.hourEnding.toString() + ":  " + it.settlementPointPrice.toString())
                 }
-
+                selectionModel.selectedItemProperty().onChange {
+                    // todo not working
+                    controller.setSettlementPointPricesForSelection()
+                }
 
             }
         }
 
         bottom {
             hbox {
-                datepicker(model.date)
-                button("Load Prices") {
-                    // fix so it is only enabled when both the date has been set and a node is selected
-                    enableWhen { model.dirty }
-                    setOnAction {
-                        controller.setSettlementPointPricesForSelection()
-                    }
+                // todo set an initial selected date
+                combobox<LocalDate>(model.date) {
+                    items = controller.availableDates
                 }
             }
         }
