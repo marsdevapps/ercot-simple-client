@@ -51,7 +51,6 @@ class ERCOTNodeList : View("ERCOT Nodes") {
             listview<SPPValue> {
                 items = controller.settlementPointPrices
                 cellCache {
-                    //                    label(it.hourEnding.toString() + ":  " + it.settlementPointPrice.toString())
                     label("Hour Ending ${it.hourEnding + 1}:  $${it.settlementPointPrice}") {
                         alignment = Pos.CENTER_RIGHT
                         style {
@@ -60,19 +59,18 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                         }
                     }
                 }
-                selectionModel.selectedItemProperty().onChange {
-                    // todo not working
-                    controller.setSettlementPointPricesForSelection()
-                }
-
             }
         }
 
         bottom {
             hbox {
-                // todo set an initial selected date
                 combobox<LocalDate>(model.date) {
                     items = controller.availableDates
+                    selectionModel.selectFirst()
+
+                    selectionModel.selectedItemProperty().onChange {
+                        controller.setSettlementPointPricesForSelection()
+                    }
                 }
             }
         }
