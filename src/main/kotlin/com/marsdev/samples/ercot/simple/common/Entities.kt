@@ -10,6 +10,10 @@ data class ERCOTNode(val name: String, val lat: Double, val lon: Double) : Compa
     override fun compareTo(other: ERCOTNode): Int {
         return compareValuesBy(this, other, ERCOTNode::name)
     }
+
+    override fun toString(): String {
+        return this.name
+    }
 }
 
 

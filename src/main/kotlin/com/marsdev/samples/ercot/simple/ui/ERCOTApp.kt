@@ -23,15 +23,17 @@ class ERCOTApp : App(ERCOTNodeList::class)
 class ERCOTNodeList : View("ERCOT Nodes") {
     val controller: ERCOTController by inject()
     val model: ERCOTSelectionModel by inject()
+    lateinit var ercotNodes: Set<ERCOTNode>
     val map: MapView
 
     init {
+
         map = MapView()
-        map.addLayer(myDemoLayer())
-        val ercotNode = controller.getERCOTNodes().elementAt(0);
+        ercotNodes = controller.getERCOTNodes()
+        val ercotNode = ercotNodes.elementAt(0)
         map.setCenter(ercotNode.lat, ercotNode.lon)
         map.zoom = 10.0
-
+        map.addLayer(myDemoLayer())
     }
 
     override val root = borderpane {
@@ -46,6 +48,9 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                 }
                 bindSelected(model.ercotNode)
                 selectionModel.selectedItemProperty().onChange {
+                    map.zoom = 13.0
+                    map.setCenter(model.ercotNode.value.lat, model.ercotNode.value.lon)
+
                     controller.setSettlementPointPricesForSelection()
                 }
             }
@@ -55,16 +60,13 @@ class ERCOTNodeList : View("ERCOT Nodes") {
             splitpane {
                 orientation = Orientation.VERTICAL
 
-                // todo need to bind number axis to upper/lower value in data and the chart title to the selected date
-                linechart("ERCOT DA Hourly Prices", CategoryAxis(), NumberAxis(-50.0, 100.0, 10.0)) {
+                linechart("ERCOT DA Hourly Prices", CategoryAxis(), NumberAxis()) {
                     // todo need to bind the selected node to the series title
-                    series("Settlement Point Prices") {
+                    series("Settlement Point Prices ") {
                         data = controller.chartSeries
                     }
                     animated = false
                 }
-
-                // todo add the map component
                 add(map)
             }
         }
@@ -100,9 +102,9 @@ class ERCOTNodeList : View("ERCOT Nodes") {
 
     private fun myDemoLayer(): MapLayer {
         val ercotNodesLayer = PoiLayer()
-        controller.getERCOTNodes().forEach { n ->
+        ercotNodes.forEach { n ->
             val mapPoint = MapPoint(n.lat, n.lon)
-            val circle = Circle(3.0, Color.BLUE)
+            val circle = Circle(4.0, Color.BLUEVIOLET)
             circle.tooltip(n.name)
             ercotNodesLayer.addPoint(mapPoint, circle)
 
