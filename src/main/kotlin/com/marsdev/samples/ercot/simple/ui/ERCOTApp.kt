@@ -28,8 +28,9 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     init {
         map = MapView()
         map.addLayer(myDemoLayer())
-        map.setCenter(50.8458, 4.724)
-        map.zoom = 3.0
+        val ercotNode = controller.getERCOTNodes().elementAt(0);
+        map.setCenter(ercotNode.lat, ercotNode.lon)
+        map.zoom = 10.0
 
     }
 
@@ -98,12 +99,15 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     }
 
     private fun myDemoLayer(): MapLayer {
-        val answer = PoiLayer()
-        val icon1 = Circle(7.0, Color.BLUE)
-        answer.addPoint(MapPoint(50.8458, 4.724), icon1)
-        val icon2 = Circle(7.0, Color.GREEN)
-        answer.addPoint(MapPoint(37.396256, -121.953847), icon2)
-        return answer
+        val ercotNodesLayer = PoiLayer()
+        controller.getERCOTNodes().forEach { n ->
+            val mapPoint = MapPoint(n.lat, n.lon)
+            val circle = Circle(3.0, Color.BLUE)
+            circle.tooltip(n.name)
+            ercotNodesLayer.addPoint(mapPoint, circle)
+
+        }
+        return ercotNodesLayer
     }
 }
 
