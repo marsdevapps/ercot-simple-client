@@ -37,7 +37,7 @@ junitPlatform {
 dependencies {
     compile 'org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version'
 
-    compile 'com.gluonhq:maps:1.0.2-SNAPSHOT'
+    compile 'com.gluonhq:maps:1.0.3-SNAPSHOT'
 
     compile 'no.tornado:tornadofx:1.7.0-SNAPSHOT'
     compile 'org.ostermiller:utils:1.07.00'
