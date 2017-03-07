@@ -31,10 +31,13 @@ import com.Ostermiller.util.ExcelCSVParser
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
 import com.marsdev.samples.ercot.simple.common.SPPValue
 import java.io.FileReader
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.*
+import kotlin.collections.HashSet
 
 /**
  * Service for ERCOT nodes and prices
@@ -46,6 +49,8 @@ interface ERCOTService {
      */
     fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>>
 
+    fun getAvailableSPPDate(): Set<LocalDate>
+
     fun getERCOTNodes(): Set<ERCOTNode>
 }
 
@@ -53,12 +58,23 @@ class ERCOTServiceImpl : ERCOTService {
     override fun getERCOTNodes(): Set<ERCOTNode> {
         // simple service... read from a csv file.  A real world application would read from a
         // database or web service
-        val values = ExcelCSVParser.parse(FileReader("/temp/points.csv"))
+        val values = ExcelCSVParser.parse(FileReader("src/main/data/geo/points.csv"))
         return values.asSequence().map { it -> ERCOTNode(it[0], it[1].toDouble(), it[2].toDouble()) }.toSortedSet()
     }
 
+    override fun getAvailableSPPDate(): Set<LocalDate> {
+        val dates = HashSet<LocalDate>()
+        val format = DateTimeFormatter.ofPattern("yyyyMMdd")
+
+        Files.list(Paths.get("src/main/data/prices/")).forEach({ it ->
+            dates.add(LocalDate.parse(it.fileName.toString().substringBeforeLast("."), format))
+        })
+
+        return dates
+    }
+
     override fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>> {
-        val values = ExcelCSVParser.parse(FileReader("/temp/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
+        val values = ExcelCSVParser.parse(FileReader("src/main/data/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
         val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
         val hourlyPrices = values.asSequence()
                 .filter { it -> it[2].equals(node.name) }

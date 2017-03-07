@@ -56,5 +56,13 @@ class ERCOTServiceSpec : Spek({
                 assert(spp[date]?.size == 24)
             }
         }
+
+        on("getAvailableSPPDate") {
+            val dates = ercotService.getAvailableSPPDate()
+
+            it("There should be 23 dates") {
+                assert(dates.size == 23)
+            }
+        }
     }
 })

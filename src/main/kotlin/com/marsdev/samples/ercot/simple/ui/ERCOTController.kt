@@ -46,14 +46,7 @@ class ERCOTController : Controller() {
     val settlementPointPrices = FXCollections.observableArrayList<SPPValue>()
 
     init {
-        availableDates += LocalDate.of(2017, 2, 13)
-        availableDates += LocalDate.of(2017, 2, 14)
-        availableDates += LocalDate.of(2017, 2, 15)
-        availableDates += LocalDate.of(2017, 2, 16)
-        availableDates += LocalDate.of(2017, 2, 17)
-        availableDates += LocalDate.of(2017, 2, 18)
-        availableDates += LocalDate.of(2017, 2, 19)
-        availableDates += LocalDate.of(2017, 2, 20)
+        availableDates.addAll(ercotService.getAvailableSPPDate().sorted())
     }
 
     fun getERCOTNodes(): Set<ERCOTNode> {
