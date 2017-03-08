@@ -36,8 +36,6 @@ import java.nio.file.Paths
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
-import kotlin.collections.HashSet
 
 /**
  * Service for ERCOT nodes and prices
@@ -52,14 +50,57 @@ interface ERCOTService {
     fun getAvailableSPPDate(): Set<LocalDate>
 
     fun getERCOTNodes(): Set<ERCOTNode>
+
+    fun loadSettlementPointPrices(date: LocalDate): Any
 }
 
 class ERCOTServiceImpl : ERCOTService {
-    override fun getERCOTNodes(): Set<ERCOTNode> {
-        // simple service... read from a csv file.  A real world application would read from a
-        // database or web service
+
+    val prices = HashMap<ERCOTNode, Map<LocalDate, Map<Int, SPPValue>>>()
+    val maxValues: Map<LocalDate, Double> = HashMap()
+    val minValues: Map<LocalDate, Double> = HashMap()
+
+    val ercotNodes: Set<ERCOTNode>
+
+    init {
         val values = ExcelCSVParser.parse(FileReader("src/main/data/geo/points.csv"))
-        return values.asSequence().map { it -> ERCOTNode(it[0], it[1].toDouble(), it[2].toDouble()) }.toSortedSet()
+        ercotNodes = values.asSequence().map { it -> ERCOTNode(it[0], it[1].toDouble(), it[2].toDouble()) }.toSortedSet()
+
+        val dates = getAvailableSPPDate()
+
+        ercotNodes.forEach {
+            val dateMap = HashMap<LocalDate, Map<Int, SPPValue>>()
+            dates.forEach {
+                dateMap.put(it, HashMap<Int, SPPValue>())
+            }
+            prices.put(it, dateMap)
+        }
+        dates.forEach {
+            loadSettlementPointPrices(it)
+        }
+    }
+
+    override fun loadSettlementPointPrices(date: LocalDate) {
+        // load the requested date... set the min/max prices
+        val values = ExcelCSVParser.parse(FileReader("src/main/data/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
+        val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
+
+        values.asSequence().forEach {
+
+            val datePriceMap = prices[ercotNodes.find { (name) -> name == it[2] }]
+            if (datePriceMap != null && datePriceMap?.contains(date)!!) {
+
+                val dateHourPriceMap: Map<Int, SPPValue> = datePriceMap?.get(date)!!
+                if (dateHourPriceMap is HashMap<Int, SPPValue>) {
+                    val sppValue = SPPValue(LocalDateTime.parse(it[0] + " " + it[1], format), LocalDateTime.parse(it[0] + " " + it[1], format).hour, it[3].toDouble())
+                    dateHourPriceMap.put(sppValue.hourEnding + 1, sppValue)
+                }
+            }
+        }
+    }
+
+    override fun getERCOTNodes(): Set<ERCOTNode> {
+        return ercotNodes
     }
 
     override fun getAvailableSPPDate(): Set<LocalDate> {
@@ -74,21 +115,8 @@ class ERCOTServiceImpl : ERCOTService {
     }
 
     override fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>> {
-        val values = ExcelCSVParser.parse(FileReader("src/main/data/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
-        val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
-        val hourlyPrices = values.asSequence()
-                .filter { it -> it[2].equals(node.name) }
-                .map { it -> SPPValue(LocalDateTime.parse(it[0] + " " + it[1], format), LocalDateTime.parse(it[0] + " " + it[1], format).hour, it[3].toDouble()) }
-                .toSet()
-
-        val returnMap = HashMap<Int, SPPValue>()
-
-        hourlyPrices.forEach {
-            returnMap.put(it.hourEnding + 1, it)
-        }
-
         val finalMap = HashMap<LocalDate, Map<Int, SPPValue>>()
-        finalMap.put(date, returnMap)
+        finalMap.put(date, prices.get(node)!!.get(date)!!)
         return finalMap
     }
 }
