@@ -88,9 +88,12 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                 orientation = Orientation.VERTICAL
 
                 linechart("ERCOT DA Hourly Prices", CategoryAxis(), NumberAxis()) {
-                    // todo need to bind the selected node to the series title
-                    series("Settlement Point Prices ") {
+                    series("Settlement Point Prices") {
                         data = controller.chartSeries
+                        data.onChange {
+                            // todo need to bind the selected node to the series title; this feels dirty?
+                            name = "Settlement Point Prices - " + model.ercotNode.value.name
+                        }
                     }
                     animated = false
                 }
