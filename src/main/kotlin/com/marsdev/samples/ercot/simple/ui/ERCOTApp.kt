@@ -33,18 +33,24 @@ import com.gluonhq.maps.MapView
 import com.gluonhq.maps.demo.PoiLayer
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
 import com.marsdev.samples.ercot.simple.common.SPPValue
+import com.marsdev.util.ToolTipDefaultsFixer
 import javafx.collections.FXCollections
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
+import javafx.scene.control.Tooltip
 import javafx.scene.paint.Color
 import javafx.scene.shape.Circle
 import javafx.scene.text.FontWeight
 import tornadofx.*
 import java.time.LocalDate
 
-class ERCOTApp : App(ERCOTNodeList::class)
+class ERCOTApp : App(ERCOTNodeList::class) {
+    init {
+        ToolTipDefaultsFixer.setTooltipTimers(25, 5000, 200)
+    }
+}
 
 
 class ERCOTNodeList : View("ERCOT Nodes") {
@@ -92,7 +98,10 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                         data = controller.chartSeries
                         data.onChange {
                             // todo need to bind the selected node to the series title; this feels dirty?
-                            name = "Settlement Point Prices - " + model.ercotNode.value.name
+                            name = "SPP - " + model.ercotNode.value.name
+                            data.forEach {
+                                Tooltip.install(it.node, Tooltip((it.yValue.toString())))
+                            }
                         }
                     }
                     animated = false
