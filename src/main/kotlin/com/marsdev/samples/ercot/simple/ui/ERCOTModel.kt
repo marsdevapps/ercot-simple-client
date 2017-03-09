@@ -28,6 +28,7 @@
 package com.marsdev.samples.ercot.simple.ui
 
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
+import javafx.beans.property.SimpleDoubleProperty
 import javafx.beans.property.SimpleObjectProperty
 import tornadofx.*
 import java.time.LocalDate
@@ -38,11 +39,19 @@ class ERCOTSelection(date: LocalDate, ercotNode: ERCOTNode) {
 
     val ercotNodeProperty = SimpleObjectProperty<ERCOTNode>(ercotNode)
     var ercotNode by ercotNodeProperty
+
+    val maxPriceProperty = SimpleDoubleProperty(100.0)
+    var maxPrice by maxPriceProperty
+
+    val minPriceProperty = SimpleDoubleProperty(-100.0)
+    var minPrice by minPriceProperty
 }
 
 class ERCOTSelectionModel : ItemViewModel<ERCOTSelection>() {
     val date = bind { item?.dateProperty }
     val ercotNode = bind { item?.ercotNodeProperty }
+    val maxPrice = bind { item?.maxPriceProperty }
+    val minPrice = bind { item?.minPriceProperty }
 }
 
 

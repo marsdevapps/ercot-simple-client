@@ -58,6 +58,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     val model: ERCOTSelectionModel by inject()
     lateinit var ercotNodes: Set<ERCOTNode>
     val map: MapView
+    val priceAxis = NumberAxis()
 
     init {
 
@@ -67,6 +68,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
         map.setCenter(ercotNode.lat, ercotNode.lon)
         map.zoom = 10.0
         map.addLayer(myDemoLayer())
+        priceAxis.isAutoRanging = false
     }
 
     override val root = borderpane {
@@ -93,7 +95,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
             splitpane {
                 orientation = Orientation.VERTICAL
 
-                linechart("ERCOT DA Hourly Prices", CategoryAxis(), NumberAxis()) {
+                linechart("ERCOT DA Hourly Prices", CategoryAxis(), priceAxis) {
                     series("Settlement Point Prices") {
                         data = controller.chartSeries
                         data.onChange {
@@ -102,6 +104,9 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                             data.forEach {
                                 Tooltip.install(it.node, Tooltip((it.yValue.toString())))
                             }
+                            priceAxis.upperBoundProperty().set(model.maxPrice.value as Double)
+                            priceAxis.lowerBoundProperty().set(model.minPrice.value as Double)
+
                         }
                     }
                     animated = false
@@ -133,6 +138,11 @@ class ERCOTNodeList : View("ERCOT Nodes") {
 
                     selectionModel.selectedItemProperty().onChange {
                         controller.setSettlementPointPricesForSelection()
+                        // todo better way to bind/handle this?
+                        var max = controller.getMinMaxPrices(model.date.value).first
+                        var min = controller.getMinMaxPrices(model.date.value).second
+                        model.maxPrice.value = Math.ceil(max) + 5
+                        model.minPrice.value = Math.floor(min) - 5
                     }
                 }
             }

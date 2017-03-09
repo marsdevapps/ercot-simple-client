@@ -47,10 +47,16 @@ class ERCOTController : Controller() {
 
     init {
         availableDates.addAll(ercotService.getAvailableSPPDate().sorted())
+        model.maxPrice.value = 100.0
+        model.minPrice.value = -100.0
     }
 
     fun getERCOTNodes(): Set<ERCOTNode> {
         return ercotService.getERCOTNodes()
+    }
+
+    fun getMinMaxPrices(date: LocalDate): Pair<Double, Double> {
+        return ercotService.getMinMaxPrices(date)
     }
 
     fun setSettlementPointPricesForSelection() {
