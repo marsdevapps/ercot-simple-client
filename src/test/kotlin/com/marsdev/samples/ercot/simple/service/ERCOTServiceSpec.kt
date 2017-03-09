@@ -64,5 +64,10 @@ class ERCOTServiceSpec : Spek({
                 assert(dates.size == 23)
             }
         }
+
+        on("getMinMaxPrices") {
+            val minMaxPrices = ercotService.getMinMaxPrices(LocalDate.of(2017, 2, 13))
+            assert(minMaxPrices.first != 1000.0)
+        }
     }
 })

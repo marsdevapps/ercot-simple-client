@@ -52,13 +52,15 @@ interface ERCOTService {
     fun getERCOTNodes(): Set<ERCOTNode>
 
     fun loadSettlementPointPrices(date: LocalDate): Any
+
+    fun getMinMaxPrices(date: LocalDate): Pair<Double, Double>
 }
 
 class ERCOTServiceImpl : ERCOTService {
 
     val prices = HashMap<ERCOTNode, Map<LocalDate, Map<Int, SPPValue>>>()
-    val maxValues: Map<LocalDate, Double> = HashMap()
-    val minValues: Map<LocalDate, Double> = HashMap()
+    val maxValues = HashMap<LocalDate, Double>()
+    val minValues = HashMap<LocalDate, Double>()
 
     val ercotNodes: Set<ERCOTNode>
 
@@ -81,7 +83,7 @@ class ERCOTServiceImpl : ERCOTService {
     }
 
     override fun loadSettlementPointPrices(date: LocalDate) {
-        // load the requested date... set the min/max prices
+        // load the requested date
         val values = ExcelCSVParser.parse(FileReader("src/main/data/prices/${date.format(DateTimeFormatter.ofPattern("yyyyMMdd"))}.csv"))
         val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
 
@@ -96,6 +98,27 @@ class ERCOTServiceImpl : ERCOTService {
                 }
             }
         }
+        // set the min/max prices for the requested date
+        setMinMaxPrices(date)
+    }
+
+    override fun getMinMaxPrices(date: LocalDate): Pair<Double, Double> {
+        val max = maxValues[date] ?: 1000.0
+        val min = minValues[date] ?: -1000.0
+        return Pair(max, min)
+    }
+
+    private fun setMinMaxPrices(date: LocalDate) {
+        var max = 0.0
+        var min = 0.0
+        prices.forEach { t, u ->
+            u[date]?.values?.forEach {
+                if (it.settlementPointPrice > max) max = it.settlementPointPrice
+                if (it.settlementPointPrice < min) min = it.settlementPointPrice
+            }
+        }
+        maxValues.put(date, max)
+        minValues.put(date, min)
     }
 
     override fun getERCOTNodes(): Set<ERCOTNode> {
