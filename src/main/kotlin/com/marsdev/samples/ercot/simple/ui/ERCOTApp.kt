@@ -82,6 +82,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                     label(it.name)
                 }
                 bindSelected(model.ercotNode)
+                selectionModel.selectFirst()
                 selectionModel.selectedItemProperty().onChange {
                     map.zoom = 13.0
                     map.setCenter(model.ercotNode.value.lat, model.ercotNode.value.lon)
