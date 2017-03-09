@@ -86,11 +86,10 @@ class ERCOTServiceImpl : ERCOTService {
         val format = DateTimeFormatter.ofPattern("MM/dd/yyyy HH:mm")
 
         values.asSequence().forEach {
-
             val datePriceMap = prices[ercotNodes.find { (name) -> name == it[2] }]
-            if (datePriceMap != null && datePriceMap?.contains(date)!!) {
+            if (datePriceMap != null && datePriceMap.contains(date)) {
 
-                val dateHourPriceMap: Map<Int, SPPValue> = datePriceMap?.get(date)!!
+                val dateHourPriceMap: Map<Int, SPPValue> = datePriceMap[date]!!
                 if (dateHourPriceMap is HashMap<Int, SPPValue>) {
                     val sppValue = SPPValue(LocalDateTime.parse(it[0] + " " + it[1], format), LocalDateTime.parse(it[0] + " " + it[1], format).hour, it[3].toDouble())
                     dateHourPriceMap.put(sppValue.hourEnding + 1, sppValue)
@@ -116,7 +115,7 @@ class ERCOTServiceImpl : ERCOTService {
 
     override fun getSettlementPointPrices(date: LocalDate, node: ERCOTNode): Map<LocalDate, Map<Int, SPPValue>> {
         val finalMap = HashMap<LocalDate, Map<Int, SPPValue>>()
-        finalMap.put(date, prices.get(node)!!.get(date)!!)
+        finalMap.put(date, prices[node]!![date]!!)
         return finalMap
     }
 }
