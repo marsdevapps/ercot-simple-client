@@ -48,9 +48,10 @@ import javafx.scene.text.FontWeight
 import tornadofx.*
 import java.time.LocalDate
 
-class ERCOTApp : App(ERCOTNodeList::class) {
+class ERCOTApp : App(ERCOTNodeList::class, Styles::class) {
     init {
         ToolTipDefaultsFixer.setTooltipTimers(25, 5000, 200)
+        reloadStylesheetsOnFocus()
     }
 }
 
