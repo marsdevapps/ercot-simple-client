@@ -27,8 +27,10 @@
  */
 package com.marsdev.samples.ercot.simple.ui
 
+import com.gluonhq.impl.maps.ImageRetriever
 import com.gluonhq.maps.MapLayer
 import com.gluonhq.maps.MapPoint
+import com.gluonhq.maps.MapStyle
 import com.gluonhq.maps.MapView
 import com.gluonhq.maps.demo.PoiLayer
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
@@ -61,7 +63,9 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     val priceAxis = NumberAxis()
 
     init {
-
+        ImageRetriever.setMapboxAccessToken("")
+        ImageRetriever.setUseAccessTokenProperty(true)
+        ImageRetriever.setHostProperty(MapStyle.MAPBOX_DARK)
         map = MapView()
         ercotNodes = controller.getERCOTNodes()
         val ercotNode = ercotNodes.elementAt(0)
