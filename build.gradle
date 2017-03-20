@@ -39,6 +39,7 @@ dependencies {
 
     compile 'com.gluonhq:maps:1.0.3-SNAPSHOT'
 
+    compile 'com.marsdev:gmkt:1.0'
     compile 'no.tornado:tornadofx:1.7.1-SNAPSHOT'
     compile 'org.ostermiller:utils:1.07.00'
     compile 'org.slf4j:slf4j-api:1.7.21'
@@ -47,6 +48,12 @@ dependencies {
 }
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 
