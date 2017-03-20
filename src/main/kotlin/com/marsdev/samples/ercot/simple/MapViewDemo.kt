@@ -23,7 +23,7 @@ class MapViewDemo : Application() {
     override fun start(primaryStage: Stage?) {
         val provider = DefaultBaseMapProvider()
         // set MapBox API Access Token and local directory to store cached tiles....
-        val mbStreetsProvider = MapBoxTileProvider("?access_token=pk.eyJ1IjoibWFyc2RldiIsImEiOiJjaXV4MjY5MGQwNHk3MnVwc21ubm1mcGtiIn0.7S5uxzW6PsgufoZqAY1mww", "d:\\map-tiles\\mapbox\\")
+        val mbStreetsProvider = MapBoxTileProvider("", "")
 
         provider.tileProviderProperty().set(mbStreetsProvider)
         provider.tileTypeProperty().set(mbStreetsProvider.getTileType(MapBoxTileType.MAPBOX_STREETS_SATELLITE))
