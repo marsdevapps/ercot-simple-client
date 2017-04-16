@@ -27,12 +27,15 @@
  */
 package com.marsdev.samples.ercot.simple.ui
 
-import com.gluonhq.impl.maps.ImageRetriever
-import com.gluonhq.maps.MapLayer
-import com.gluonhq.maps.MapPoint
-import com.gluonhq.maps.MapStyle
-import com.gluonhq.maps.MapView
-import com.gluonhq.maps.demo.PoiLayer
+import com.esri.arcgisruntime.geometry.Point
+import com.esri.arcgisruntime.geometry.SpatialReference
+import com.esri.arcgisruntime.geometry.SpatialReferences
+import com.esri.arcgisruntime.mapping.ArcGISMap
+import com.esri.arcgisruntime.mapping.Basemap
+import com.esri.arcgisruntime.mapping.view.Graphic
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay
+import com.esri.arcgisruntime.mapping.view.MapView
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol
 import com.marsdev.samples.ercot.simple.common.ERCOTNode
 import com.marsdev.samples.ercot.simple.common.SPPValue
 import com.marsdev.util.ToolTipDefaultsFixer
@@ -42,8 +45,6 @@ import javafx.geometry.Pos
 import javafx.scene.chart.CategoryAxis
 import javafx.scene.chart.NumberAxis
 import javafx.scene.control.Tooltip
-import javafx.scene.paint.Color
-import javafx.scene.shape.Circle
 import javafx.scene.text.FontWeight
 import tornadofx.*
 import java.time.LocalDate
@@ -60,20 +61,20 @@ class ERCOTNodeList : View("ERCOT Nodes") {
     val controller: ERCOTController by inject()
     val model: ERCOTSelectionModel by inject()
     lateinit var ercotNodes: Set<ERCOTNode>
-    val map: MapView
+    val mapView: MapView
+    val map: ArcGISMap
     val priceAxis = NumberAxis()
+    val spatialReference: SpatialReference
 
     init {
-        ImageRetriever.setMapboxAccessToken("")
-        ImageRetriever.setUseAccessTokenProperty(true)
-        ImageRetriever.setHostProperty(MapStyle.MAPBOX_DARK)
-        map = MapView()
+        spatialReference = SpatialReferences.getWebMercator()
+        map = ArcGISMap(Basemap.Type.IMAGERY_WITH_LABELS, 27.607441, -97.310196, 10)
+        mapView = MapView()
+        mapView.map = map
         ercotNodes = controller.getERCOTNodes()
         val ercotNode = ercotNodes.elementAt(0)
-        map.setCenter(ercotNode.lat, ercotNode.lon)
-        map.zoom = 10.0
-        map.addLayer(myDemoLayer())
         priceAxis.isAutoRanging = false
+        mapView.graphicsOverlays.add(myDemoLayer())
     }
 
     override val root = borderpane {
@@ -89,9 +90,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                 bindSelected(model.ercotNode)
                 selectionModel.selectFirst()
                 selectionModel.selectedItemProperty().onChange {
-                    map.zoom = 13.0
-                    map.setCenter(model.ercotNode.value.lat, model.ercotNode.value.lon)
-
+                    mapView.setViewpointCenterAsync(Point(model.ercotNode.value.lon, model.ercotNode.value.lat, SpatialReferences.getWgs84()), 12000.0)
                     controller.setSettlementPointPricesForSelection()
                 }
             }
@@ -117,7 +116,7 @@ class ERCOTNodeList : View("ERCOT Nodes") {
                     }
                     animated = false
                 }
-                add(map)
+                add(mapView)
             }
         }
         right {
@@ -155,16 +154,17 @@ class ERCOTNodeList : View("ERCOT Nodes") {
         }
     }
 
-    private fun myDemoLayer(): MapLayer {
-        val ercotNodesLayer = PoiLayer()
+    private fun myDemoLayer(): GraphicsOverlay {
+        val graphicsOverlay = GraphicsOverlay()
         ercotNodes.forEach { n ->
-            val mapPoint = MapPoint(n.lat, n.lon)
-            val circle = Circle(4.0, Color.BLUEVIOLET)
-            circle.tooltip(n.name)
-            ercotNodesLayer.addPoint(mapPoint, circle)
+            val point = Point(n.lon, n.lat, SpatialReferences.getWgs84())
+            val symbol = SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, 0xFFFF0000.toInt(), 10f)
+            val graphic = Graphic(point, symbol)
+            graphicsOverlay.graphics.add(graphic)
+//            circle.tooltip(n.name)
 
         }
-        return ercotNodesLayer
+        return graphicsOverlay
     }
 }
 

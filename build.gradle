@@ -5,18 +5,24 @@ apply plugin: 'java'
 apply plugin: 'kotlin'
 apply plugin: 'maven'
 apply plugin: 'org.junit.platform.gradle.plugin'
+apply plugin: 'com.esri.arcgisruntime.java'
 
+arcgis.version = '100.0.0'
 buildscript {
     ext.kotlin_version = '1.1.1'
 
     repositories {
         mavenLocal()
+        maven{
+            url 'https://esri.bintray.com/arcgis'
+        }
         mavenCentral()
         jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0-M3'
+        classpath 'com.esri.arcgisruntime:gradle-arcgis-java-plugin:1.0.0'
     }
 }
 repositories {
@@ -37,10 +43,8 @@ junitPlatform {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    compile 'com.gluonhq:maps:1.0.3-SNAPSHOT'
-
     compile 'com.marsdev:gmkt:1.0'
-    compile 'no.tornado:tornadofx:1.7.1-SNAPSHOT'
+    compile 'no.tornado:tornadofx:1.7.2'
     compile 'org.ostermiller:utils:1.07.00'
     compile 'org.slf4j:slf4j-api:1.7.21'
     testCompile 'org.jetbrains.spek:spek-api:1.1.0-beta3'

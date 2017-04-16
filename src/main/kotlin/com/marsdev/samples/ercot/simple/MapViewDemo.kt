@@ -45,7 +45,7 @@ class MapViewDemo : Application() {
         primaryStage!!.setScene(scene)
         primaryStage.show()
         map.setViewport(30.0, -95.00, 29.1, -95.90)
-//          map.setCenter(29.70, -95.81)
+//          mapView.setCenter(29.70, -95.81)
 //        showMyLocation()
         map.setZoom(10.0)
 
@@ -75,7 +75,7 @@ class MapViewDemo : Application() {
 //        val positionLayer = PositionLayer(circle, (image.width / -2.0), (image.height / -2.0))
         map.getLayers().add(positionLayer)
         positionLayer.updatePosition(29.70, -95.81)
-        map.centerLatitudeProperty().addListener { i -> System.out.println("center of map: lat = " + map.centerLatitudeProperty().get() + ", lon = " + map.centerLongitudeProperty().get()) }
+        map.centerLatitudeProperty().addListener { i -> System.out.println("center of mapView: lat = " + map.centerLatitudeProperty().get() + ", lon = " + map.centerLongitudeProperty().get()) }
     }
 
     companion object {
